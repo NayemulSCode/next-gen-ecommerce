@@ -165,7 +165,13 @@ const ProductGrid: FC<ProductGridProps> = ({
                 <div className="relative">
                   <Link href={`/product/${product.id}`}>
                     <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        {/* <Image
+                          src={product.image}
+                          alt="placeholder"
+                          width={300}
+                          height={300}
+                        /> */}
                         <span className="text-gray-400 text-xs">
                           Product Image
                         </span>
