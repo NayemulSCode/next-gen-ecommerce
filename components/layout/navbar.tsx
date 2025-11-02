@@ -1,8 +1,10 @@
 "use client";
 
-import { Badge, Menu, Search, ShoppingCart, User } from "lucide-react";
+import { useCartStore } from "@/store/cart";
+import { Menu, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -66,8 +68,8 @@ const Navbar = () => {
   const [session, setSession] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartItemsCount, setCartItemsCount] = useState(6);
-
+  const { getTotalItems } = useCartStore();
+  const cartItemsCount = getTotalItems();
   return (
     <header
       className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 ${
