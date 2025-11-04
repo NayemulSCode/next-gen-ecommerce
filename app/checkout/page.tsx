@@ -21,6 +21,7 @@ import { useCartStore } from "@/store/cart";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, CreditCard, Shield, Truck } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -42,6 +43,7 @@ const checkoutSchema = shippingAddressSchema.extend({
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 const CheckoutPage = () => {
+  const router = useRouter();
   const { items, removeItem, updateItemQuantity, clearCart, getTotalPrice } =
     useCartStore();
   const [currentStep, setCurrentStep] = useState(1);
@@ -65,6 +67,39 @@ const CheckoutPage = () => {
   const total = subtotal + shipping + tax;
   const onSubmit = async (data: CheckoutFormData) => {
     setIsProcessing(true);
+    try {
+      const res = await fetch(`/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: "guestUser", // later from auth
+          items,
+          total,
+          shipping,
+          tax,
+          subtotal,
+          shippingInfo: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            address: data.address,
+            email: data.email,
+            phone: data.phone,
+            notes: data.notes,
+          },
+          paymentMethod: data.paymentMethod,
+        }),
+      });
+      const result = await res.json();
+      console.log("🚀 ~ onSubmit ~ result:", result);
+      if (!result.success) throw new Error(result.error);
+      // clear cart + redirect
+      clearCart();
+      router.push(`/order-confirmation/${result.order.id}`);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
   if (items.length === 0) {
     return (
