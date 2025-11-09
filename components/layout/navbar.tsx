@@ -2,6 +2,7 @@
 
 import { useCartStore } from "@/store/cart";
 import { Menu, Search, ShoppingCart, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
@@ -65,7 +66,9 @@ const categories: Category[] = [
   },
 ];
 const Navbar = () => {
-  const [session, setSession] = useState(false);
+  const { data: session } = useSession();
+  // const session = useSession();
+  console.log("🚀 ~ Navbar ~ session:", session);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { getTotalItems } = useCartStore();
@@ -139,13 +142,11 @@ const Navbar = () => {
                     <DropdownMenuItem asChild>
                       <Link href="/account">My Account</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    {/* <DropdownMenuItem asChild>
                       <Link href="/orders">Orders</Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                    //   onClick={() => signOut()}
-                    >
+                    <DropdownMenuItem onClick={() => signOut()}>
                       Sign Out
                     </DropdownMenuItem>
                   </>

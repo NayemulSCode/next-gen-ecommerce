@@ -107,6 +107,38 @@ export class MongoDBService {
       return [];
     }
   }
+  async updateOne<T>(
+    collectionName: string,
+    id: string,
+    data: Partial<T>
+  ): Promise<T | null> {
+    try {
+      const collection = this.db.collection<T>(collectionName);
+      // 🔧 FIX: Use 'new ObjectId()' instead of 'ObjectId()'
+      const result = await collection.findOneAndUpdate(
+        { _id: new ObjectId(id) } as any,
+        { $set: data },
+        { returnDocument: "after" }
+      );
+      return result || null;
+    } catch (error) {
+      console.error(`Error updating document in ${collectionName}:`, error);
+      return null;
+    }
+  }
+  async deleteOne(collectionName: string, id: string): Promise<boolean> {
+    try {
+      const collection = this.db.collection(collectionName);
+      // 🔧 FIX: Use 'new ObjectId()' instead of 'ObjectId()'
+      const result = await collection.deleteOne({
+        _id: new ObjectId(id),
+      } as any);
+      return result.deletedCount > 0;
+    } catch (error) {
+      console.error(`Error deleting document in ${collectionName}:`, error);
+      return false;
+    }
+  }
 }
 
 export async function getMongoDBService(): Promise<MongoDBService> {

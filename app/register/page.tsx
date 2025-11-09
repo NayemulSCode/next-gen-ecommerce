@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -28,6 +30,50 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch("/api/auth/registration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          confirmPassword,
+        }),
+      });
+      const data = await response.json();
+      console.log("🚀 ~ handleSubmit ~ data:", data);
+
+      if (!response.ok) {
+        toast.error(data.error || "Something went wrong");
+        setIsLoading(false);
+        return;
+      }
+      toast.success("Registration successful!");
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (result?.error) {
+        toast.error("Please try signing in manually");
+        router.push("/login");
+      } else {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
